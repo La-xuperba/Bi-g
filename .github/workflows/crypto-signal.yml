@@ -41,7 +41,7 @@ jobs:
           DIGEST_MIN_SCORE: 50
           DIGEST_ONLY_NEW: true
           DIGEST_SEND_EMPTY: false
-        run: python crypto_signal_bot.py --onec
+        run: python crypto_signal_bot.py --tick
 
       - name: Persist state
         run: |

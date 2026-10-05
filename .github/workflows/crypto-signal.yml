@@ -33,15 +33,15 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          CHAINS: solana,bsc
-          SCAN_EVERY_MIN: 60
+          CHAINS: solana,bsc,ethereum,base,robinhood
+          SCAN_EVERY_MIN: 15
           TICK_SECONDS: 30
-          MIN_SCORE_SIGNAL: 70
+          MIN_SCORE_SIGNAL: 50
           RISK_MAX_SCORE: 45
-          DIGEST_MIN_SCORE: 70
+          DIGEST_MIN_SCORE: 50
           DIGEST_ONLY_NEW: true
           DIGEST_SEND_EMPTY: false
-        run: python crypto_signal_bot.py --once
+        run: python crypto_signal_bot.py --onec
 
       - name: Persist state
         run: |

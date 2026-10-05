@@ -1,0 +1,4 @@
+requests>=2.31.0
+python-dotenv>=1.0.0
+# Optional: only needed if POST_TO_TWITTER=true
+tweepy>=4.14.0

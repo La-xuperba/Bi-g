@@ -49,8 +49,10 @@ COOLDOWN_MIN=int(os.getenv('ALERT_COOLDOWN_MIN','60'))
 ENABLE_DEFILLAMA=os.getenv('ENABLE_DEFILLAMA','true').lower()=='true'
 ENABLE_FUTURES=os.getenv('ENABLE_FUTURES_CONFIRMATION','true').lower()=='true'
 
-BINANCE_SPOT=['https://api.binance.com','https://data-api.binance.vision']
-FAPI=['https://fapi.binance.com','https://fapi.binance.com']
+# Try Binance's public market-data mirror first: api.binance.com can return HTTP 451
+# from some hosted runners/regions. These are public market-data endpoints only.
+BINANCE_SPOT=['https://data-api.binance.vision','https://api-gcp.binance.com','https://api1.binance.com','https://api2.binance.com','https://api3.binance.com','https://api4.binance.com','https://api.binance.com']
+FAPI=['https://fapi.binance.com']
 STABLES={'USDT','USDC','FDUSD','TUSD','BUSD','USDP','DAI','EUR','TRY','BRL','USDE','USDD','PYUSD','USTC'}
 INTERVALS={'5m':'5m','15m':'15m','30m':'30m','1h':'1h','4h':'4h'}
 
@@ -69,6 +71,9 @@ def get_json(url,params=None,retries=1,timeout=15):
     for i in range(retries+1):
         try:
             r=S.get(url,params=params,timeout=timeout)
+            if r.status_code==451:
+                # Region/eligibility block: don't retry the same host; caller may try a fallback.
+                return None
             if r.status_code==429:
                 time.sleep(2+i*2); continue
             r.raise_for_status(); return r.json()
@@ -243,33 +248,59 @@ def resistance(k):
 
 def futures_json(path,params):
     if not ENABLE_FUTURES:return None
-    return get_json(f'https://fapi.binance.com{path}',params,retries=1)
+    return get_json(f'https://fapi.binance.com{path}',params,retries=0)
+
+def okx_futures_data(base):
+    """Fallback market intelligence when Binance Futures is geo-blocked.
+    Only public OKX endpoints are used; unavailable fields stay unavailable."""
+    inst=f'{base}-USDT-SWAP'
+    oi=get_json('https://www.okx.com/api/v5/public/open-interest',{'instType':'SWAP','instId':inst},retries=0)
+    fr=get_json('https://www.okx.com/api/v5/public/funding-rate',{'instId':inst},retries=0)
+    cur=0.0; funding=None
+    try:
+        d=(oi or {}).get('data') or []; cur=float(d[0].get('oiUsd') or 0) if d else 0.0
+    except (TypeError,ValueError,IndexError): pass
+    try:
+        d=(fr or {}).get('data') or []; funding=float(d[0].get('fundingRate')) if d else None
+    except (TypeError,ValueError,IndexError): pass
+    return cur,funding
 
 def futures_data(sym,k1,st):
-    out={'oi':0,'funding':0,'liq':0,'pressure':0,'notes':[],'scores':{'oi':0,'funding':0,'liq':0}}
+    out={'oi':0,'funding':None,'liq':0,'pressure':0,'notes':[],'scores':{'oi':0,'funding':0,'liq':0}}
     base=sym[:-4]
+    # Binance Futures first; if restricted (HTTP 451) or unavailable, fall back to OKX.
     oi=futures_json('/fapi/v1/openInterest',{'symbol':sym})
-    try:cur=float(oi['openInterest'])
-    except:cur=0
+    try:cur=float(oi['openInterest']); oi_source='binance'
+    except (TypeError,ValueError,KeyError):cur=0.0; oi_source='okx'
+    fr=futures_json('/fapi/v1/fundingRate',{'symbol':sym,'limit':1})
+    try:funding=float(fr[-1]['fundingRate']) if isinstance(fr,list) and fr else None
+    except (TypeError,ValueError,KeyError,IndexError):funding=None
+    if not cur or funding is None:
+        okx_oi,okx_funding=okx_futures_data(base)
+        if not cur and okx_oi:cur=okx_oi; oi_source='okx'
+        if funding is None:funding=okx_funding
+        if cur or funding is not None:out['notes'].append('Futures confirmation via OKX fallback')
     if cur:
         prev=st['oi'].get(base);out['oi']=cur
-        if prev and prev.get('v'):
+        # Never compare Binance contract units with OKX USD notional.
+        if prev and prev.get('v') and prev.get('source','binance')==oi_source:
             ch=(cur/prev['v']-1)*100
             if ch>8:out['scores']['oi']=W['oi'];out['notes'].append(f'OI rising {ch:+.1f}%')
             elif ch>3:out['scores']['oi']=6;out['notes'].append(f'OI rising {ch:+.1f}%')
             elif ch>0:out['scores']['oi']=3
-        st['oi'][base]={'v':cur,'ts':time.time()}
-    fr=futures_json('/fapi/v1/fundingRate',{'symbol':sym,'limit':1})
-    try:f=float(fr[-1]['fundingRate']) if isinstance(fr,list) else 0
-    except:f=0
-    out['funding']=f
-    if -0.0005<=f<=0.0005:out['scores']['funding']=W['funding'];out['notes'].append('funding neutral/healthy')
-    elif f<0:out['scores']['funding']=4;out['notes'].append('funding negative')
-    else:out['scores']['funding']=1;out['notes'].append('funding crowded positive')
-    # Force orders are sampled for the last 15 minutes. Missing data = neutral, never invented.
+        st['oi'][base]={'v':cur,'ts':time.time(),'source':oi_source}
+    if funding is not None:
+        out['funding']=funding
+        if -0.0005<=funding<=0.0005:out['scores']['funding']=W['funding'];out['notes'].append('funding neutral/healthy')
+        elif funding<0:out['scores']['funding']=4;out['notes'].append('funding negative')
+        else:out['scores']['funding']=1;out['notes'].append('funding crowded positive')
+    else:
+        out['notes'].append('funding data unavailable; no points assigned')
+    # Liquidation data is not assumed. The Binance allForceOrders endpoint can be restricted
+    # or require permissions; without a verified public response, leave its score at zero.
     fo=futures_json('/fapi/v1/allForceOrders',{'symbol':sym,'limit':100})
     if isinstance(fo,list) and fo:
-        cutoff=int((time.time()-900)*1000);short=long=0
+        cutoff=int((time.time()-900)*1000);short=long=0.0
         for x in fo:
             if int(x.get('time',0))<cutoff:continue
             q=float(x.get('origQty',0))*float(x.get('price',0)); side=x.get('side','')
@@ -277,7 +308,6 @@ def futures_data(sym,k1,st):
             elif side=='BUY':long+=q
         total=short+long
         if total:
-            # SELL liquidation means longs were liquidated; BUY liquidation means shorts.
             if short>long*1.25:out['scores']['liq']=W['liq'];out['notes'].append(f'short liquidation heavy {usd(short)}')
             elif long>short*1.25:out['scores']['liq']=2;out['notes'].append(f'long liquidation heavy {usd(long)}')
             else:out['scores']['liq']=3

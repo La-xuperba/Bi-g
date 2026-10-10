@@ -15,7 +15,7 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 8
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,14 +35,14 @@ jobs:
           STATE_FILE: state_binance.json
           SCAN_EVERY_MIN: '5'
           TICK_SECONDS: '30'
-          BINANCE_MIN_24H_VOLUME_USD: '5000000'
-          STAGE1_TOP: '60'
-          DEEP_SCAN_COUNT: '18'
+          BINANCE_MIN_24H_VOLUME_USD: '500000'
+          STAGE1_TOP: '80'
+          DEEP_SCAN_COUNT: '24'
           SIGNAL_MIN_SCORE: '45'
-          ALERT_COOLDOWN_MIN: '60'
+          ALERT_COOLDOWN_MIN: '720'
           ENABLE_FUTURES_CONFIRMATION: 'true'
           ENABLE_DEFILLAMA: 'true'
-        run: python crypto_signal_bot.py --watch 4 --force
+        run: python crypto_signal_bot.py --once
 
       - name: Save state
         run: |

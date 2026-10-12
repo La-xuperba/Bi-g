@@ -15,7 +15,7 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
           TICK_SECONDS: '30'
           BINANCE_MIN_24H_VOLUME_USD: '500000'
           STAGE1_TOP: '100'
-          DEEP_SCAN_COUNT: '40'
+          DEEP_SCAN_COUNT: '50'
           SIGNAL_MIN_SCORE: '45'
           ALERT_COOLDOWN_MIN: '720'
           ENABLE_FUTURES_CONFIRMATION: 'true'

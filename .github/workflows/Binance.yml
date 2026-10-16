@@ -1,4 +1,4 @@
-name: Binance Spot Early Radar
+name: Binance Gems Spot Radar + Square Post
 
 on:
   schedule:
@@ -28,10 +28,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run Binance Spot radar
+      - name: Run Binance Gems radar
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BINANCE_SQUARE_OPENAPI_KEY: ${{ secrets.BINANCE_SQUARE_OPENAPI_KEY }}
+          POST_TO_SQUARE: 'true'
+          SQUARE_MIN_SCORE: '60'
           STATE_FILE: state_binance.json
           SCAN_EVERY_MIN: '5'
           TICK_SECONDS: '30'
@@ -49,5 +52,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add state_binance.json || true
-          git diff --cached --quiet || git commit -m 'Update Binance radar state'
+          git diff --cached --quiet || git commit -m 'Update Binance Gems radar state'
           git push || true

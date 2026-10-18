@@ -38,7 +38,7 @@ jobs:
           STATE_FILE: state_binance.json
           SCAN_EVERY_MIN: '5'
           TICK_SECONDS: '30'
-          BINANCE_MIN_24H_VOLUME_USD: '500000'
+          BINANCE_MIN_24H_VOLUME_USD: '100000' # low-liquidity safety floor; not the scoring basis
           STAGE1_TOP: '100'
           DEEP_SCAN_COUNT: '50'
           SIGNAL_MIN_SCORE: '45'

@@ -1,31 +1,61 @@
-name: Pump Radar
+name: BINANCE GEMS Pre-Pump Radar v7
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
-  group: pump-radar
+  group: binance-gems-prepump-radar
   cancel-in-progress: false
 
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests tradingview-ta
-      - uses: actions/cache@v4
-        with:
-          path: pump_radar_state.json
-          key: pump-radar-state-${{ github.run_id }}
-          restore-keys: pump-radar-state-
-      - run: python pump_radar.py --once
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run BINANCE GEMS radar
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          NETWORKS: solana,bsc
+          BINANCE_SQUARE_OPENAPI_KEY: ${{ secrets.BINANCE_SQUARE_OPENAPI_KEY }}
+          POST_TO_SQUARE: 'true'
+          SQUARE_MIN_SCORE: '75'
+          STATE_FILE: state_binance.json
+          SCAN_EVERY_MIN: '5'
+          TICK_SECONDS: '30'
+          BINANCE_MIN_24H_VOLUME_USD: '500000'
+          STAGE1_TOP: '100'
+          DEEP_SCAN_COUNT: '50'
+          SIGNAL_MIN_SCORE: '75'
+          ALERT_COOLDOWN_MIN: '720'
+          ENABLE_FUTURES_CONFIRMATION: 'true'
+          ENABLE_DEFILLAMA: 'true'
+        run: python crypto_signal_bot.py --once
+
+      - name: Save signal state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add state_binance.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update BINANCE GEMS signal state'
+            git push
+          else
+            echo 'No state changes to save.'
+          fi

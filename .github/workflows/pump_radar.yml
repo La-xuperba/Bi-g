@@ -42,7 +42,7 @@ jobs:
           BINANCE_MIN_24H_VOLUME_USD: '500000'
           STAGE1_TOP: '100'
           DEEP_SCAN_COUNT: '50'
-          SIGNAL_MIN_SCORE: '75'
+          SIGNAL_MIN_SCORE: '65'
           ALERT_COOLDOWN_MIN: '720'
           ENABLE_FUTURES_CONFIRMATION: 'true'
           ENABLE_DEFILLAMA: 'true'

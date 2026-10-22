@@ -38,7 +38,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           BINANCE_SQUARE_OPENAPI_KEY: ${{ secrets.BINANCE_SQUARE_OPENAPI_KEY }}
           POST_TO_SQUARE: 'false'
-          SIGNAL_MIN_SCORE: '65'
+          SIGNAL_MIN_SCORE: '45'
           SQUARE_MIN_SCORE: '75'
           ALERT_COOLDOWN_MIN: '720'
           ENABLE_FUTURES_CONFIRMATION: 'true'

@@ -39,7 +39,7 @@ jobs:
           BINANCE_SQUARE_OPENAPI_KEY: ${{ secrets.BINANCE_SQUARE_OPENAPI_KEY }}
           POST_TO_SQUARE: 'true'
           SIGNAL_MIN_SCORE: '45'
-          SQUARE_MIN_SCORE: '75'
+          SQUARE_MIN_SCORE: '45'
           ALERT_COOLDOWN_MIN: '720'
           ENABLE_FUTURES_CONFIRMATION: 'true'
           ENABLE_DEFILLAMA: 'true'

@@ -1,36 +1,18 @@
---- HIMSBUSDT ---
-Early momentum watch: $HIMSB.
-Current score 90/100 at 28.12 USDT.
-Volume activity is 2.47× average; 24h change: +2.37%.
-A watchlist candidate, not a promise of a pump.
-
---- HUMAUSDT ---
-💎 $HUMA is on the BINANCE GEMS spot radar.
-Score: 70/100 | Price: 0.02775 USDT
-15m volume is running at 0.55× its average, with 24h change at +10.13%.
+--- GNSUSDT ---
+💎 $GNS is on the BINANCE GEMS spot radar.
+Score: 75/100 | Price: 0.402 USDT
+15m volume is running at 6.15× its average, with 24h change at -1.75%.
 Watching for confirmation rather than chasing a candle.
 
---- KGSTUSDT ---
-💎 $KGST is on the BINANCE GEMS spot radar.
-Score: 60/100 | Price: 0.01122 USDT
-15m volume is running at 12.37× its average, with 24h change at +0.33%.
-Watching for confirmation rather than chasing a candle.
-
---- HEIUSDT ---
-Early momentum watch: $HEI.
-Current score 60/100 at 0.1054 USDT.
-Volume activity is 5.22× average; 24h change: +1.84%.
-A watchlist candidate, not a promise of a pump.
-
---- UVXYBUSDT ---
-💎 $UVXYB is on the BINANCE GEMS spot radar.
-Score: 50/100 | Price: 18.01 USDT
-15m volume is running at 6.67× its average, with 24h change at -1.21%.
-Watching for confirmation rather than chasing a candle.
-
---- GOOGLBUSDT ---
-👀 Keeping $GOOGLB on the spot watchlist.
-Price: 325.24 USDT | Radar score: 45/100
-15m activity: 2.14× average. 24h: +2.23%.
+--- MRNABUSDT ---
+👀 Keeping $MRNAB on the spot watchlist.
+Price: 216.18 USDT | Radar score: 70/100
+15m activity: 4.05× average. 24h: +12.92%.
 The setup still needs confirmation—no blind chasing.
+
+--- STXBUSDT ---
+Early momentum watch: $STXB.
+Current score 50/100 at 662.06 USDT.
+Volume activity is 4.01× average; 24h change: -3.44%.
+A watchlist candidate, not a promise of a pump.
 

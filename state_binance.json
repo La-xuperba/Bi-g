@@ -1,5 +1,6 @@
 {
-  "signal_serial": 2,
+  "signal_serial": 3,
   "signal|AMDBUSDT": 1793293272.0438972,
-  "signal|BANKUSDT": 1793293293.0026178
+  "signal|BANKUSDT": 1793293293.0026178,
+  "signal|PDDBUSDT": 1793310155.8568766
 }

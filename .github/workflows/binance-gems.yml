@@ -1,0 +1,55 @@
+name: BINANCE GEMS Spot Radar
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: binance-gems-spot-radar
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Run BINANCE GEMS bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+          COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
+          BINANCE_SQUARE_OPENAPI_KEY: ${{ secrets.BINANCE_SQUARE_OPENAPI_KEY }}
+          POST_TO_SQUARE: "true"
+          SQUARE_MIN_SCORE: "45"
+          MIN_SCORE: "45"
+          MAX_PAIRS: "500"
+          SIGNAL_COOLDOWN_MINUTES: "720"
+          FLASH_PUMP_STATE_FILE: flash_pump_state.json
+          FLASH_PUMP_THRESHOLD_PCT: "5"
+          FLASH_PUMP_COOLDOWN_MINUTES: "60"
+          FLASH_PUMP_MAX_PAIRS: "250"
+          STATE_FILE: state_binance.json
+          POST_DELAY_MIN_SECONDS: "10"
+          POST_DELAY_MAX_SECONDS: "20"
+        run: python run_bot.py
+      - name: Persist state and drafts
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state_binance.json flash_pump_state.json square_drafts.txt || true
+          git diff --cached --quiet || git commit -m "Update BINANCE GEMS state [skip ci]"
+          git push || true

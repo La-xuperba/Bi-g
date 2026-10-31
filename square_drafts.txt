@@ -1,6 +1,6 @@
---- EURIUSDT ---
-📊 $EURI caught my eye because spot activity is running at 2.05× its recent average.
-Score: 85/100 • 24h change: +2.47% • Price: 1.1483 USDT.
+--- BANKUSDT ---
+📊 $BANK caught my eye because spot activity is running at 3.08× its recent average.
+Score: 50/100 • 24h change: -0.76% • Price: 0.0264 USDT.
 The next thing to watch is whether that activity holds through candle close.
 Spot watch only — no guaranteed pump.
 
